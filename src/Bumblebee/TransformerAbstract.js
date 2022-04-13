@@ -81,7 +81,7 @@ class TransformerAbstract {
     if (
       Config.get('bumblebee.includeUsesModelName') === true &&
       resource.data &&
-      !['Object', 'Array'].includes(resource.data.constructor.name)
+      !['Object', 'Array', 'VanillaSerializer'].includes(resource.data.constructor.name)
     ) {
       returnObjectPropertyName = _camelCase(resource.data.constructor.name)
     }
