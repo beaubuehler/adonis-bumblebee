@@ -1,5 +1,5 @@
 {
-  "name": "adonis-bumblebee",
+  "name": "@beau-buehler/adonis-bumblebee",
   "version": "2.2.0",
   "description": "Api Transformer Provider for AdonisJs Framework",
   "main": "index.js",
