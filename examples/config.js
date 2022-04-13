@@ -24,5 +24,11 @@ module.exports = {
    * When a transformer is reffered to by its name only, Bumblebee will try to
    * resolve the transformer using this namespace as prefix.
    */
-  namespace: 'App/Transformers'
+  namespace: 'App/Transformers',
+
+  /*
+   * For includes, use the name of the model instead of the include name when
+   * defining the return object.
+   */
+  includeUsesModelName: true,
 }

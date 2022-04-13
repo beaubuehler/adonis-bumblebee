@@ -1,7 +1,12 @@
 'use strict'
 
+const {
+  ioc
+} = require('@adonisjs/fold')
 const Resources = require('./Resources')
-const { camelCase: _camelCase } = require('lodash')
+const {
+  camelCase: _camelCase
+} = require('lodash')
 
 /**
  * TransformerAbstract class
@@ -12,15 +17,15 @@ const { camelCase: _camelCase } = require('lodash')
 class TransformerAbstract {
   /*
    * Resources that can be included if requested
-  */
-  static get availableInclude () {
+   */
+  static get availableInclude() {
     return []
   }
 
   /*
    * List of resources to automatically include
-  */
-  static get defaultInclude () {
+   */
+  static get defaultInclude() {
     return []
   }
 
@@ -28,7 +33,7 @@ class TransformerAbstract {
    * This method is used to transform the data.
    * Implementation required
    */
-  transform () {
+  transform() {
     throw new Error('You have to implement the method transform or specify a variant when calling the transformer!')
   }
 
@@ -38,7 +43,7 @@ class TransformerAbstract {
    * @param {*} data
    * @param {*} transformer
    */
-  collection (data, transformer) {
+  collection(data, transformer) {
     return new Resources.Collection(data, transformer)
   }
 
@@ -48,7 +53,7 @@ class TransformerAbstract {
    * @param {*} data
    * @param {*} transformer
    */
-  item (data, transformer) {
+  item(data, transformer) {
     return new Resources.Item(data, transformer)
   }
 
@@ -58,8 +63,30 @@ class TransformerAbstract {
    * @param {*} data
    * @param {*} transformer
    */
-  null () {
+  null() {
     return new Resources.Null()
+  }
+
+  /**
+   * This methods returns the property name for the object based on settings
+   *
+   * @param {*} include
+   * @param {*} resource
+   */
+  async _getResponseObjectName(include, resource) {
+    const Config = ioc.use('Adonis/Src/Config')
+    let returnObjectPropertyName = include
+
+    // if setting includeUsesModelName is true, use the model name (camelCase) instead of the include name
+    if (
+      Config.get('bumblebee.includeUsesModelName') === true &&
+      resource.data &&
+      !['Object', 'Array'].includes(resource.data.constructor.name)
+    ) {
+      returnObjectPropertyName = _camelCase(resource.data.constructor.name)
+    }
+
+    return returnObjectPropertyName
   }
 
   /**
@@ -68,7 +95,7 @@ class TransformerAbstract {
    * @param {*} parentScope
    * @param {*} data
    */
-  async _processIncludedResources (parentScope, data) {
+  async _processIncludedResources(parentScope, data) {
     const includeData = {}
 
     // figure out which of the available includes are requested
@@ -81,12 +108,15 @@ class TransformerAbstract {
     for (const include of resourcesToInclude) {
       const resource = await this._callIncludeFunction(include, parentScope, data)
 
+      // get property name for the object
+      const propertyName = await this._getResponseObjectName(include, resource)
+
       // if the include uses a resource, run the data through the transformer chain
       if (resource instanceof Resources.ResourceAbstract) {
-        includeData[include] = await this._createChildScopeFor(parentScope, resource, include).toJSON()
+        includeData[propertyName] = await this._createChildScopeFor(parentScope, resource, include).toJSON()
       } else {
         // otherwise, return the data as is
-        includeData[include] = resource
+        includeData[propertyName] = resource
       }
     }
 
@@ -100,7 +130,7 @@ class TransformerAbstract {
    * @param {*} parentScope
    * @param {*} data
    */
-  async _callIncludeFunction (include, parentScope, data) {
+  async _callIncludeFunction(include, parentScope, data) {
     // convert the include name to camelCase
     include = _camelCase(include)
     const includeName = `include${include.charAt(0).toUpperCase()}${include.slice(1)}`
@@ -117,7 +147,7 @@ class TransformerAbstract {
    *
    * @param {*} parentScope
    */
-  _figureOutWhichIncludes (parentScope) {
+  _figureOutWhichIncludes(parentScope) {
     const includes = this.constructor.defaultInclude
 
     const requestedAvailableIncludes = this.constructor.availableInclude.filter(i => parentScope._isRequested(i))
@@ -132,7 +162,7 @@ class TransformerAbstract {
    * @param {*} resource
    * @param {*} include
    */
-  _createChildScopeFor (parentScope, resource, include) {
+  _createChildScopeFor(parentScope, resource, include) {
     // create a new scope
     const Scope = require('./Scope')
     const childScope = new Scope(parentScope._manager, resource, parentScope._ctx, include)
@@ -155,7 +185,7 @@ class TransformerAbstract {
    * @param {*} resourcesToInclude
    * @param {*} data
    */
-  async _eagerloadIncludedResource (resourcesToInclude, data) {
+  async _eagerloadIncludedResource(resourcesToInclude, data) {
     // if there is no loadMany function, return since it propably is not a lucid model
     if (!data.loadMany) return
 
