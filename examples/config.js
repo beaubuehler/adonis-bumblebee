@@ -26,9 +26,4 @@ module.exports = {
    */
   namespace: 'App/Transformers',
 
-  /*
-   * For includes, use the name of the model instead of the include name when
-   * defining the return object.
-   */
-  includeUsesModelName: true,
 }
