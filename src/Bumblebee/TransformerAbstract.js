@@ -1,8 +1,5 @@
 'use strict'
 
-const {
-  ioc
-} = require('@adonisjs/fold')
 const Resources = require('./Resources')
 const {
   camelCase: _camelCase
@@ -42,9 +39,10 @@ class TransformerAbstract {
    *
    * @param {*} data
    * @param {*} transformer
+   * @param {*} propertyName
    */
-  collection(data, transformer) {
-    return new Resources.Collection(data, transformer)
+  collection(data, transformer, propertyName) {
+    return new Resources.Collection(data, transformer, propertyName)
   }
 
   /**
@@ -52,9 +50,10 @@ class TransformerAbstract {
    *
    * @param {*} data
    * @param {*} transformer
+   * @param {*} propertyName
    */
-  item(data, transformer) {
-    return new Resources.Item(data, transformer)
+  item(data, transformer, propertyName) {
+    return new Resources.Item(data, transformer, propertyName)
   }
 
   /**
@@ -74,19 +73,10 @@ class TransformerAbstract {
    * @param {*} resource
    */
   async _getResponseObjectName(include, resource) {
-    const Config = ioc.use('Adonis/Src/Config')
-    let returnObjectPropertyName = include
-
-    // if setting includeUsesModelName is true, use the model name (camelCase) instead of the include name
-    if (
-      Config.get('bumblebee.includeUsesModelName') === true &&
-      resource.data &&
-      !['Object', 'Array', 'VanillaSerializer'].includes(resource.data.constructor.name)
-    ) {
-      returnObjectPropertyName = _camelCase(resource.data.constructor.name)
-    }
-
-    return returnObjectPropertyName
+    // if the resource propertyName is set, use that instead of the include name
+    if (resource.propertyName)
+      return resource.propertyName
+    return include
   }
 
   /**

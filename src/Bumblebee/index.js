@@ -16,14 +16,16 @@ class Bumblebee {
    *
    * @param {*} data
    * @param {TransformerAbstract} transformer
+   * @param {String} propertyName
    */
-  static create (data = null, transformer = null) {
+  static create(data = null, transformer = null, propertyName = null) {
     // create an instance of Bumblebee and pass a new instance of Manager
     const instance = new Bumblebee(new Manager())
 
     // initialize data and transformer properties
     instance._data = data
     instance._dataType = instance._determineDataType(data)
+    instance._propertyName = propertyName
     instance._transformer = transformer
     instance._variant = null
 
@@ -42,7 +44,7 @@ class Bumblebee {
    *
    * @param {Manager} manager
    */
-  constructor (manager) {
+  constructor(manager) {
     this._manager = manager
     return this
   }
@@ -53,9 +55,12 @@ class Bumblebee {
    *
    * @param {Array} data
    * @param {TransformerAbstract} transformer
+   * @param {String} propertyName
    */
-  collection (data, transformer = null) {
+  collection(data, transformer = null, propertyName = null) {
     this._setData('Collection', data)
+
+    this._propertyName = propertyName
 
     if (transformer) {
       this.transformWith(transformer)
@@ -71,9 +76,12 @@ class Bumblebee {
    *
    * @param {Array} data
    * @param {TransformerAbstract} transformer
+   * @param {String} propertyName
    */
-  item (data, transformer = null) {
+  item(data, transformer = null, propertyName = null) {
     this._setData('Item', data)
+
+    this._propertyName = propertyName
 
     if (transformer) {
       this.transformWith(transformer)
@@ -86,7 +94,7 @@ class Bumblebee {
   /**
    * Sets data to null
    */
-  null () {
+  null() {
     this._setData('Null', null)
 
     return this
@@ -99,9 +107,12 @@ class Bumblebee {
    *
    * @param {Array} data
    * @param {TransformerAbstract} transformer
+   * @param {String} propertyName
    */
-  paginate (data, transformer = null) {
+  paginate(data, transformer = null, propertyName = null) {
     this._setData('Collection', data.rows)
+
+    this._propertyName = propertyName
 
     // extract pagination data
     const paginationData = data.pages
@@ -127,7 +138,7 @@ class Bumblebee {
    *
    * @param {Object} meta
    */
-  meta (meta) {
+  meta(meta) {
     this._meta = meta
 
     return this
@@ -138,7 +149,7 @@ class Bumblebee {
    *
    * @param {TransformerAbstract} transformer
    */
-  transformWith (transformer) {
+  transformWith(transformer) {
     this._transformer = transformer
 
     return this
@@ -149,7 +160,7 @@ class Bumblebee {
    *
    * @param {String} variant
    */
-  usingVariant (variant) {
+  usingVariant(variant) {
     this._variant = variant
 
     return this
@@ -161,7 +172,7 @@ class Bumblebee {
    *
    * @param {Context} ctx
    */
-  withContext (ctx) {
+  withContext(ctx) {
     this._ctx = ctx
 
     return this
@@ -173,7 +184,7 @@ class Bumblebee {
    *
    * @param {Array, String} include
    */
-  include (include) {
+  include(include) {
     this._manager.parseIncludes(include)
 
     return this
@@ -184,7 +195,7 @@ class Bumblebee {
    *
    * @param {SerializerAbstrace} serializer
    */
-  setSerializer (serializer) {
+  setSerializer(serializer) {
     this._manager.setSerializer(serializer)
 
     return this
@@ -195,14 +206,14 @@ class Bumblebee {
    *
    * @param {SerializerAbstrace} serializer
    */
-  serializeWith (serializer) {
+  serializeWith(serializer) {
     return this.setSerializer(serializer)
   }
 
   /**
    * Terminates the fluid interface and returns the transformed data.
    */
-  toArray () {
+  toArray() {
     console.warn('Deprecation warning: Calling #toArray() is deprecated. Please us #toJSON() instead.')
     return this.toJSON()
   }
@@ -210,7 +221,7 @@ class Bumblebee {
   /**
    * Terminates the fluid interface and returns the transformed data.
    */
-  toJSON () {
+  toJSON() {
     return this._createData().toJSON()
   }
 
@@ -218,7 +229,7 @@ class Bumblebee {
    * @param {String} dataType
    * @param {Object} data
    */
-  _setData (dataType, data) {
+  _setData(dataType, data) {
     this._data = data
     this._dataType = dataType
     this._pagination = null
@@ -229,16 +240,16 @@ class Bumblebee {
   /**
    * Helper function to set resource on the manager
    */
-  _createData () {
+  _createData() {
     return this._manager.createData(this._getResource(), this._ctx)
   }
 
   /**
    * Create a resource for the data and set meta and pagination data
    */
-  _getResource () {
+  _getResource() {
     const Resource = Resources[this._dataType]
-    const resourceInstance = new Resource(this._data, this._transformer)
+    const resourceInstance = new Resource(this._data, this._transformer, this._propertyName)
 
     resourceInstance.setMeta(this._meta)
     resourceInstance.setPagination(this._pagination)
@@ -252,7 +263,7 @@ class Bumblebee {
    *
    * @param {*} data
    */
-  _determineDataType (data) {
+  _determineDataType(data) {
     if (data === null) {
       return 'Null'
     }
