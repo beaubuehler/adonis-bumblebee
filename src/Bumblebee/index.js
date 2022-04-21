@@ -16,6 +16,7 @@ class Bumblebee {
    *
    * @param {*} data
    * @param {TransformerAbstract} transformer
+   * @param {String} propertyName
    */
   static create(data = null, transformer = null, propertyName = null) {
     // create an instance of Bumblebee and pass a new instance of Manager
@@ -54,6 +55,7 @@ class Bumblebee {
    *
    * @param {Array} data
    * @param {TransformerAbstract} transformer
+   * @param {String} propertyName
    */
   collection(data, transformer = null, propertyName = null) {
     this._setData('Collection', data)
@@ -74,6 +76,7 @@ class Bumblebee {
    *
    * @param {Array} data
    * @param {TransformerAbstract} transformer
+   * @param {String} propertyName
    */
   item(data, transformer = null, propertyName = null) {
     this._setData('Item', data)
@@ -104,6 +107,7 @@ class Bumblebee {
    *
    * @param {Array} data
    * @param {TransformerAbstract} transformer
+   * @param {String} propertyName
    */
   paginate(data, transformer = null, propertyName = null) {
     this._setData('Collection', data.rows)

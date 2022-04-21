@@ -39,6 +39,7 @@ class TransformerAbstract {
    *
    * @param {*} data
    * @param {*} transformer
+   * @param {*} propertyName
    */
   collection(data, transformer, propertyName) {
     return new Resources.Collection(data, transformer, propertyName)
@@ -49,6 +50,7 @@ class TransformerAbstract {
    *
    * @param {*} data
    * @param {*} transformer
+   * @param {*} propertyName
    */
   item(data, transformer, propertyName) {
     return new Resources.Item(data, transformer, propertyName)
