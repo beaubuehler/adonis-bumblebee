@@ -11,11 +11,15 @@ class ResourceAbstract {
    * Constractor for the ResourceAbstract
    * This allowes to set data and transformer while creating an instance
    */
-  constructor (data, trans) {
+  constructor(data, trans, propertyName) {
     this.data = data
     this.meta = null
+    this.propertyName = propertyName
 
-    const { transformer, variant } = this._separateTransformerAndVariation(trans)
+    const {
+      transformer,
+      variant
+    } = this._separateTransformerAndVariation(trans)
 
     this.transformer = transformer
     this.variant = variant
@@ -24,7 +28,7 @@ class ResourceAbstract {
   /**
    * Return the data for this resource
    */
-  async getData () {
+  async getData() {
     // data can be a promise, so we wait until it resolves
     const data = await this.data
 
@@ -40,7 +44,7 @@ class ResourceAbstract {
   /**
    * Returns the transformer set for this resource
    */
-  getTransformer () {
+  getTransformer() {
     return this.transformer
   }
 
@@ -49,7 +53,7 @@ class ResourceAbstract {
    *
    * @param {Object} meta
    */
-  setMeta (meta) {
+  setMeta(meta) {
     this.meta = meta
 
     return this
@@ -58,7 +62,7 @@ class ResourceAbstract {
   /**
    * Returns the metadata
    */
-  getMeta () {
+  getMeta() {
     return this.meta
   }
 
@@ -67,7 +71,7 @@ class ResourceAbstract {
    *
    * @param {Object} pagination
    */
-  setPagination (pagination) {
+  setPagination(pagination) {
     this.pagination = pagination
 
     return this
@@ -76,7 +80,7 @@ class ResourceAbstract {
   /**
    * Returns the saved pagination information
    */
-  getPagination () {
+  getPagination() {
     return this.pagination
   }
 
@@ -85,7 +89,7 @@ class ResourceAbstract {
    *
    * @param {Object} pagination
    */
-  setVariant (variant) {
+  setVariant(variant) {
     if (variant) {
       this.variant = variant
     }
@@ -96,7 +100,7 @@ class ResourceAbstract {
   /**
    * Returns the transformer variant
    */
-  getVariant () {
+  getVariant() {
     return this.variant
   }
 
@@ -104,10 +108,13 @@ class ResourceAbstract {
    * When a transformer string is passed with a variation defined in dot-notation
    * we will split the string into transformer and variant
    */
-  _separateTransformerAndVariation (transformerString) {
+  _separateTransformerAndVariation(transformerString) {
     // This feature is only available when a string binding is used
     if (typeof transformerString !== 'string') {
-      return { transformer: transformerString, variant: null }
+      return {
+        transformer: transformerString,
+        variant: null
+      }
     }
 
     const regex = /(.*)\.(.*)/
@@ -119,7 +126,10 @@ class ResourceAbstract {
     const transformer = matches ? matches[1] : transformerString
     const variant = matches ? matches[2] : null
 
-    return { transformer, variant }
+    return {
+      transformer,
+      variant
+    }
   }
 }
 
