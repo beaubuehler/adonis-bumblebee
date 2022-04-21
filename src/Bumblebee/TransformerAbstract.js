@@ -71,7 +71,6 @@ class TransformerAbstract {
    * @param {*} resource
    */
   async _getResponseObjectName(include, resource) {
-    console.log(resource)
     // if the resource propertyName is set, use that instead of the include name
     if (resource.propertyName)
       return resource.propertyName

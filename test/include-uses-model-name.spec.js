@@ -3,9 +3,6 @@
 const test = require('japa')
 
 const setup = require('./setup')
-const {
-  ioc
-} = require('@adonisjs/fold')
 const Bumblebee = require('../src/Bumblebee')
 const TransformerAbstract = require('../src/Bumblebee/TransformerAbstract')
 
@@ -25,7 +22,7 @@ class AuthorTransformer extends TransformerAbstract {
   }
 
   includeBooks(books) {
-    return this.collection(books, BookTransformer)
+    return this.collection(books, BookTransformer, 'itsABook')
   }
 }
 
@@ -33,7 +30,8 @@ class BookTransformer extends TransformerAbstract {
   static get availableInclude() {
     return [
       'authorSummary',
-      'characters'
+      'authorDifferent',
+      'characters',
     ]
   }
 
@@ -47,6 +45,10 @@ class BookTransformer extends TransformerAbstract {
 
   includeAuthorSummary(book) {
     return this.item(book.author, AuthorTransformer)
+  }
+
+  includeAuthorDifferent(book) {
+    return this.item(book.author, AuthorTransformer, 'itsAnAuthor')
   }
 }
 
@@ -93,20 +95,12 @@ test.group('Naming included objects', (group) => {
     await setup()
   })
 
-  test('Uses include name if includeUsesModelName = false', async (assert) => {
-    const config = ioc.use('Adonis/Src/Config')
-
-    config.set('bumblebee', {
-      includeUsesModelName: false,
-    })
-
+  test('Uses include name propertyName not provided', async (assert) => {
     const transformed = await Bumblebee.create()
       .include('authorSummary')
       .item(book)
       .transformWith(BookTransformer)
       .toJSON()
-
-    //console.log(transformed)
 
     assert.deepEqual(transformed, {
       id: 1,
@@ -120,15 +114,10 @@ test.group('Naming included objects', (group) => {
     })
   })
 
-  test('Uses model name if includeUsesModelName = true', async (assert) => {
-    const config = ioc.use('Adonis/Src/Config')
-
-    config.set('bumblebee', {
-      includeUsesModelName: true,
-    })
+  test('Uses provided propertyName if not null', async (assert) => {
 
     const transformed = await Bumblebee.create()
-      .include('authorSummary')
+      .include('authorDifferent')
       .item(book)
       .transformWith(BookTransformer)
       .toJSON()
@@ -137,7 +126,7 @@ test.group('Naming included objects', (group) => {
       id: 1,
       title: 'The Lord of the Rings',
       year: 1954,
-      author: {
+      itsAnAuthor: {
         first_name: 'J. R. R.',
         last_name: 'Tolkien',
         birth_year: 1892,
